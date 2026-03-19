@@ -29,4 +29,4 @@ Duolingoとは対照的な「深掘り型」英会話学習。
 
 ---
 ## 📝 更新履歴
-- 2026-03-19: プロジェクトの初期構築完了。Vite + React + Firebase + Gemini APIの統合に成功。
+- 2026-03-19: プロジェクトの初期構築完了。Vite + React + Firebase + Gemini APIの統合に成功。リポジトリのPush Protection問題を解消し、GitHub(main)へクリーンなプッシュが完了。
