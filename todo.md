@@ -1,0 +1,32 @@
+# English App: Step-by-Step Mastery - TODO List
+
+## 🚀 プロジェクト目標
+Duolingoとは対照的な「深掘り型」英会話学習。
+アメリカの子供と同じように、1つの構文を完璧に（10回連続正解）使いこなせるまで反復する。
+
+## 🛠 タスク状況
+
+### 1. 環境構築
+- [x] Gitリポジトリの初期化とリモート連携 (GitHub: vividkool/english)
+- [x] Vite + React プロジェクトの作成 (React + TypeScript)
+- [x] Firebase (Firestore) のセットアップ (src/firebase.ts)
+- [x] .env ファイルの作成 (VITE_GEMINI_API_KEY)
+
+### 2. 設計
+- [x] Firestore データ構造の最終決定 (基本構成をsrc/firebase.tsに反映)
+- [x] システムプロンプト（US Grade 1〜12担当教師）の推敲 (src/api/gemini.ts)
+
+### 3. 実装
+- [x] Gemini API 連携モジュール (src/api/gemini.ts)
+- [x] 音声認識モジュール (Web Speech API) (src/components/PracticeRoom.tsx)
+- [x] 学習メイン画面 UI (src/App.tsx, src/components/PracticeRoom.tsx)
+- [x] 判定 & 反復ロジック (10回連続カウント)
+- [ ] 復習のリマインドロジック (Firestoreへの保存が必要)
+
+### 4. ブラッシュアップ
+- [x] プレミアムなモダンデザインの適用 (Vanilla CSS)
+- [x] モバイル対応、スムーズなアニメーション
+
+---
+## 📝 更新履歴
+- 2026-03-19: プロジェクトの初期構築完了。Vite + React + Firebase + Gemini APIの統合に成功。
