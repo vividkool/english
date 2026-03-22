@@ -9,7 +9,10 @@ export const getGeminiResponse = async (prompt: string) => {
   try {
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    return response.text();
+    let text = response.text();
+    // Remove markdown code blocks if present
+    text = text.replace(/```json\n?|```/g, "").trim();
+    return text;
   } catch (error) {
     console.error("Gemini API Error:", error);
     throw error;
