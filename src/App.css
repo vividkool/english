@@ -2,33 +2,203 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   min-height: 100vh;
-  padding: 2rem;
-  background: radial-gradient(circle at top right, #1a1a2e, #16213e);
-  color: #e94560;
+  padding: 1rem;
+  padding-bottom: 80px; /* ナビ用余白 */
+  background: radial-gradient(circle at top right, #fdfcfb, #e2d1c3);
+  color: #333;
+  font-family: 'Outfit', 'Inter', sans-serif;
 }
 
 header h1 {
-  font-size: 3rem;
-  margin-bottom: 0.5rem;
-  background: linear-gradient(90deg, #e94560, #0f3460);
+  font-size: 2.5rem;
+  margin-bottom: 0.2rem;
+  background: linear-gradient(90deg, #ff9a9e, #fad0c4);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  font-weight: 800;
+}
+
+header p {
+  color: #888;
+  font-size: 0.9rem;
 }
 
 .card {
   width: 100%;
-  max-width: 600px;
-  padding: 3rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 20px;
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  transition: transform 0.3s ease;
+  max-width: 500px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 30px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  margin-top: 1rem;
 }
 
-.card:hover {
-  transform: translateY(-5px);
+/* Tabs & Content */
+.scroll-content {
+  margin-bottom: 1rem;
+}
+
+.lesson-section {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.lesson-item {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 15px;
+  margin-bottom: 0.8rem;
+  border-left: 5px solid #ff9a9e;
+}
+
+.sentence {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.3rem;
+  font-style: italic;
+}
+
+/* Base Buttons */
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.primary-button {
+  background: linear-gradient(90deg, #ff9a9e, #fecfef);
+  color: white;
+  padding: 1rem 2rem;
+  width: 100%;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 15px rgba(255, 154, 158, 0.3);
+}
+
+.secondary-button {
+  background: #fff;
+  color: #ff9a9e;
+  border: 2px solid #ff9a9e;
+  padding: 0.8rem 1.5rem;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.text-button {
+  background: none;
+  color: #aaa;
+  font-size: 0.8rem;
+  margin-top: 2rem;
+  width: 100%;
+}
+
+/* Quiz UI */
+.quiz-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 1rem 0;
+}
+
+input[type="text"] {
+  padding: 1rem;
+  border-radius: 15px;
+  border: 2px solid #eee;
+  font-size: 1.1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input[type="text"]:focus {
+  border-color: #ff9a9e;
+}
+
+.mic-button {
+  padding: 2rem;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+  background: #f8f9fa;
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+.mic-button.recording {
+  background: #ffe5e5;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 154, 158, 0.4); }
+  70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(255, 154, 158, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 154, 158, 0); }
+}
+
+/* States & Feedbacks */
+.status-badge {
+  background: #fecfef;
+  color: #ff9a9e;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  display: inline-block;
+  font-size: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.feedback-area {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 15px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.pass-box { background: #e7f9ee; color: #2e7d32; }
+.hint-box { background: #fff3e0; color: #ef6c00; }
+
+/* Fixed Nav */
+.fixed-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+  z-index: 100;
+}
+
+.fixed-bottom-nav button {
+  background: none;
+  flex: 1;
+  padding: 0.8rem;
+  color: #ccc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.8rem;
+}
+
+.fixed-bottom-nav button.active {
+  color: #ff9a9e;
+}
+
+.loader {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 0.7rem;
+  color: #ff9a9e;
 }

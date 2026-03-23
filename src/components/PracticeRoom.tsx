@@ -1,36 +1,102 @@
 import { useState, useEffect } from "react";
-import { getGeminiResponse, generateDrillPrompt, generateScoringPrompt } from "../api/gemini";
+import { getGeminiResponse, generateLessonPrompt, generateScoringPrompt } from "../api/gemini";
 
-interface Drill {
-  japanese: string;
+interface LessonItem {
   english: string;
-  hint: string;
+  japanese: string;
+  sentence: string;
+}
+
+interface Lesson {
+  theme: string;
+  vocabulary: LessonItem[];
+  idioms: LessonItem[];
+  phrases: LessonItem[];
 }
 
 export const PracticeRoom = () => {
-  const [drill, setDrill] = useState<Drill | null>(null);
+  const [lesson, setLesson] = useState<Lesson | null>(null);
+  const [activeTab, setActiveTab] = useState<"read" | "write" | "speak">("read");
   const [consecutiveCount, setConsecutiveCount] = useState(0);
   const [feedback, setFeedback] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [userSpeech, setUserSpeech] = useState("");
+  const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentType, setCurrentType] = useState<"vocabulary" | "idioms" | "phrases">("vocabulary");
 
-  // 初回ロード時に問題を生成
   useEffect(() => {
-    fetchNewDrill();
+    fetchNewLesson();
   }, []);
 
-  const fetchNewDrill = async () => {
+  const fetchNewLesson = async () => {
     setIsLoading(true);
     try {
-      const prompt = generateDrillPrompt("US Grade 1", "おやつが欲しい時");
+      const prompt = generateLessonPrompt("US Grade 1", "学校での挨拶");
       const response = await getGeminiResponse(prompt);
-      const parsedDrill = JSON.parse(response);
-      setDrill(parsedDrill);
+      const parsedLesson = JSON.parse(response);
+      setLesson(parsedLesson);
       setFeedback("");
       setUserSpeech("");
+      setUserInput("");
+      setConsecutiveCount(0);
+      setCurrentIndex(0);
+      setCurrentType("vocabulary");
     } catch (error) {
-      console.error("Failed to fetch drill:", error);
+      console.error("Failed to fetch lesson:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getCurrentItem = (): LessonItem | null => {
+    if (!lesson) return null;
+    return lesson[currentType][currentIndex] || null;
+  };
+
+  const nextItem = () => {
+    if (!lesson) return;
+    const types: ("vocabulary" | "idioms" | "phrases")[] = ["vocabulary", "idioms", "phrases"];
+    const typeIndex = types.indexOf(currentType);
+    
+    if (currentIndex < lesson[currentType].length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    } else if (typeIndex < types.length - 1) {
+      setCurrentType(types[typeIndex + 1]);
+      setCurrentIndex(0);
+    } else {
+      setCurrentType("vocabulary");
+      setCurrentIndex(0);
+    }
+    setFeedback("");
+    setUserInput("");
+    setUserSpeech("");
+  };
+
+  const handleScoring = async (answer: string) => {
+    const currentItem = getCurrentItem();
+    if (!currentItem) return;
+
+    setIsLoading(true);
+    try {
+      const prompt = generateScoringPrompt(currentItem.english, answer);
+      const response = await getGeminiResponse(prompt);
+      const score = JSON.parse(response);
+
+      if (score.result === "Pass") {
+        const newCount = consecutiveCount + 1;
+        setConsecutiveCount(newCount);
+        setFeedback(`✨ ${score.feedback}`);
+        if (newCount >= 10) {
+          setFeedback("🌈 すっごい！10回連続正解だよ！マスターしたね！");
+        }
+      } else {
+        setConsecutiveCount(0);
+        setFeedback(`💡 ${score.feedback}`);
+      }
+    } catch (error) {
+      setFeedback("先生がちょっとお休み中みたい。もう一度送ってみてね。");
     } finally {
       setIsLoading(false);
     }
@@ -39,7 +105,7 @@ export const PracticeRoom = () => {
   const startSpeechRecognition = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      setFeedback("このブラウザは音声認識をサポートしていません。");
+      setFeedback("このブラウザは音声認識が使えないみたい。");
       return;
     }
 
@@ -59,61 +125,105 @@ export const PracticeRoom = () => {
     recognition.start();
   };
 
-  const handleScoring = async (speechText: string) => {
-    if (!drill) return;
-    setIsLoading(true);
-    try {
-      const prompt = generateScoringPrompt(drill.english, speechText);
-      const response = await getGeminiResponse(prompt);
-      const score = JSON.parse(response);
+  const renderRead = () => (
+    <div className="read-view">
+      <h3>📚 {lesson?.theme}</h3>
+      <div className="lesson-section">
+        <h4>🌟 たんご (Words)</h4>
+        {lesson?.vocabulary.map((v, i) => (
+          <div key={i} className="lesson-item">
+            <strong>{v.english}</strong>: {v.japanese}
+            <p className="sentence">{v.sentence}</p>
+          </div>
+        ))}
+      </div>
+      <div className="lesson-section">
+        <h4>💫 じゅくご (Idioms)</h4>
+        {lesson?.idioms.map((v, i) => (
+          <div key={i} className="lesson-item">
+            <strong>{v.english}</strong>: {v.japanese}
+            <p className="sentence">{v.sentence}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
-      if (score.result === "Pass") {
-        const newCount = consecutiveCount + 1;
-        setConsecutiveCount(newCount);
-        setFeedback("🎉 正解！完璧です！");
-        if (newCount >= 10) {
-          setFeedback("🏆 10回連続達成！おめでとうございます！マスターしました。");
-          // 次のレベルや新しい問題へ
-        }
-      } else {
-        setConsecutiveCount(0);
-        setFeedback(`❌ 不合格: ${score.feedback}`);
-      }
-    } catch (error) {
-      setFeedback("採点中にエラーが発生しました。");
-    } finally {
-      setIsLoading(false);
-    }
+  const renderWrite = () => {
+    const item = getCurrentItem();
+    return (
+      <div className="write-view">
+        <div className="status-badge">連続正解: {consecutiveCount} / 10</div>
+        <h3>✍️ かいてみよう</h3>
+        {item && (
+          <div className="quiz-container">
+            <p className="japanese-hint">{item.japanese} を英語でいうと？</p>
+            <input 
+              type="text" 
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              placeholder="ここに英語をかいてね"
+              onKeyDown={(e) => e.key === 'Enter' && handleScoring(userInput)}
+            />
+            <button className="primary-button" onClick={() => handleScoring(userInput)} disabled={isLoading || !userInput}>
+              こたえあわせ
+            </button>
+          </div>
+        )}
+      </div>
+    );
   };
 
-  return (
-    <div className="practice-room card">
-      {isLoading && <div className="loader">Geminiが考えています...</div>}
-      
-      {drill && (
-        <div className="drill-content">
-          <div className="status-badge">連続正解: {consecutiveCount} / 10</div>
-          <h2>{drill.japanese}</h2>
-          <p className="hint">ヒント: {drill.hint}</p>
-          
-          <div className="speech-section">
+  const renderSpeak = () => {
+    const item = getCurrentItem();
+    return (
+      <div className="speak-view">
+        <div className="status-badge">連続正解: {consecutiveCount} / 10</div>
+        <h3>🎤 はなしてみよう</h3>
+        {item && (
+          <div className="quiz-container">
+            <p className="english-target">{item.english}</p>
+            <p className="japanese-sub">({item.japanese})</p>
             <button 
               className={`mic-button ${isRecording ? 'recording' : ''}`}
               onClick={startSpeechRecognition}
               disabled={isLoading || isRecording}
             >
-              {isRecording ? "🎤 聞いています..." : "🎤 話して答える"}
+              {isRecording ? "👂 きいてるよ..." : "🎤 おしてからはなしてね"}
             </button>
-            {userSpeech && <p className="user-speech">あなたの発話: "{userSpeech}"</p>}
+            {userSpeech && <p className="user-speech">きこえたよ: "{userSpeech}"</p>}
           </div>
+        )}
+      </div>
+    );
+  };
 
-          {feedback && <div className={`feedback-area ${consecutiveCount === 0 ? 'fail' : 'pass'}`}>{feedback}</div>}
-          
-          <button className="secondary-button" onClick={fetchNewDrill} disabled={isLoading}>
-            別の問題に変える
-          </button>
-        </div>
-      )}
+  return (
+    <div className="practice-room card">
+      {isLoading && <div className="loader">Gemini先生が準備中... 💫</div>}
+      
+      <div className="scroll-content">
+        {activeTab === "read" && renderRead()}
+        {activeTab === "write" && renderWrite()}
+        {activeTab === "speak" && renderSpeak()}
+        
+        {feedback && <div className={`feedback-area ${consecutiveCount === 0 ? 'hint-box' : 'pass-box'}`}>{feedback}</div>}
+        
+        {(activeTab === "write" || activeTab === "speak") && (
+          <button className="secondary-button" onClick={nextItem}>つぎの問題へ</button>
+        )}
+
+        <button className="text-button" onClick={fetchNewLesson} disabled={isLoading}>
+          あたらしいテーマにする
+        </button>
+      </div>
+
+      <div className="fixed-bottom-nav">
+        <button className={activeTab === 'read' ? 'active' : ''} onClick={() => {setActiveTab('read'); setFeedback("");}}>📖 Read</button>
+        <button className={activeTab === 'write' ? 'active' : ''} onClick={() => {setActiveTab('write'); setFeedback("");}}>✍️ Write</button>
+        <button className={activeTab === 'speak' ? 'active' : ''} onClick={() => {setActiveTab('speak'); setFeedback("");}}>🎤 Speak</button>
+      </div>
     </div>
   );
 };
+

@@ -20,37 +20,52 @@ export const getGeminiResponse = async (prompt: string) => {
 };
 
 /**
- * 学習用プロンプト生成
+ * 教材用プロンプト生成
  * @param grade US Grade (1-12)
- * @param situation シチュエーション
+ * @param theme テーマ
  */
-export const generateDrillPrompt = (grade: string, situation: string) => {
-  return `あなたは米国の小学校の先生です。${grade}レベルの英語学習者のために、以下のシチュエーションに基づいた短い英会話のフレーズを1つだけ生成してください。
+export const generateLessonPrompt = (grade: string, theme: string) => {
+  return `あなたは米国の小学校の優しくて教え上手な先生です。${grade}レベルの子供たちのために、以下のテーマに基づいた本日の教材を生成してください。
   
-シチュエーション: ${situation}
+テーマ: ${theme}
 
-出力は以下のJSON形式でお願いします:
+以下のプロパティを持つJSON形式で出力してください:
 {
-  "japanese": "状況の説明",
-  "english": "学習すべき正しい英文",
-  "hint": "学習者へのヒント"
-}`;
+  "theme": "今日のテーマタイトル",
+  "vocabulary": [
+    {"english": "word1", "japanese": "単語1", "sentence": "例文1"},
+    {"english": "word2", "japanese": "単語2", "sentence": "例文2"}
+  ],
+  "idioms": [
+    {"english": "idiom1", "japanese": "熟語1", "sentence": "例文1"}
+  ],
+  "phrases": [
+    {"english": "phrase1", "japanese": "慣用句1", "sentence": "例文1"}
+  ]
+}
+
+子供が毎日楽しく続けられるよう、日常的で親しみやすい表現を選んでください。`;
 };
 
 /**
  * 採点用プロンプト生成
  */
 export const generateScoringPrompt = (original: string, userTyped: string) => {
-  return `あなたは厳格な小学校の先生です。以下の正解とユーザーの回答を比較し、採点してください。
-冠詞(a, the)、複数形のs、時制、綴りのミスが1つでもあれば不合格(Fail)としてください。
+  return `あなたは世界一優しくて褒め上手な小学校の先生です。子供の回答を negativity を排除して採点してください。
+多少のスペルミスや冠詞の忘れがあっても、意味が通じればまずは褒めてあげてください。
+その上で、より正解に近づくためのアドバイスを優しく伝えてください。
 
 正解: ${original}
-回答: ${userTyped}
+子供の回答: ${userTyped}
 
 出力は以下のJSON形式でお願いします:
 {
   "result": "Pass/Fail",
-  "feedback": "ミスがある場合の具体的な指摘（日本語）",
+  "feedback": "子供がやる気が出るような、優しくて具体的なアドバイス（日本語）",
   "is_perfect": true/false
-}`;
+}
+
+完璧なら "Pass"、改善の余地があってもまずは褒めてから "Fail" ではなく、子供が次も頑張れるように調整してください。
+意味がほぼ合っていれば "Pass" にしてあげてください。`;
 };
+
