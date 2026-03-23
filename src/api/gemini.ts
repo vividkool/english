@@ -5,13 +5,24 @@ const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 export const getGeminiResponse = async (prompt: string) => {
-  const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+  const model = genAI.getGenerativeModel({ 
+    model: "gemini-3-flash-preview",
+    generationConfig: { responseMimeType: "application/json" }
+  });
   try {
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    let text = response.text();
-    // Remove markdown code blocks if present
+    let text = response.text().trim();
+    
+    // Markdownのコードブロックを削除
     text = text.replace(/```json\n?|```/g, "").trim();
+    
+    // もしJSONの外側にテキストがあっても抽出を試みる
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      text = jsonMatch[0];
+    }
+    
     return text;
   } catch (error) {
     console.error("Gemini API Error:", error);
@@ -29,7 +40,7 @@ export const generateLessonPrompt = (grade: string, theme: string) => {
   
 テーマ: ${theme}
 
-以下のプロパティを持つJSON形式で出力してください:
+必ず以下のJSON形式のみを出力してください。説明文や「はい、わかりました」といった挨拶は一切含めないでください。
 {
   "theme": "今日のテーマタイトル",
   "vocabulary": [
@@ -44,7 +55,7 @@ export const generateLessonPrompt = (grade: string, theme: string) => {
   ]
 }
 
-子供が毎日楽しく続けられるよう、日常的で親しみやすい表現を選んでください。`;
+日常的で親しみやすい表現を選んでください。`;
 };
 
 /**
@@ -52,20 +63,16 @@ export const generateLessonPrompt = (grade: string, theme: string) => {
  */
 export const generateScoringPrompt = (original: string, userTyped: string) => {
   return `あなたは世界一優しくて褒め上手な小学校の先生です。子供の回答を negativity を排除して採点してください。
-多少のスペルミスや冠詞の忘れがあっても、意味が通じればまずは褒めてあげてください。
-その上で、より正解に近づくためのアドバイスを優しく伝えてください。
+意味が通じればまずは褒めてあげてください。
 
-正解: ${original}
-子供の回答: ${userTyped}
-
-出力は以下のJSON形式でお願いします:
+必ず以下のJSON形式のみを出力してください。説明文や挨拶は一切含めないでください。
 {
   "result": "Pass/Fail",
-  "feedback": "子供がやる気が出るような、優しくて具体的なアドバイス（日本語）",
+  "feedback": "子供がやる気が出るようなアドバイス（日本語）",
   "is_perfect": true/false
 }
 
-完璧なら "Pass"、改善の余地があってもまずは褒めてから "Fail" ではなく、子供が次も頑張れるように調整してください。
-意味がほぼ合っていれば "Pass" にしてあげてください。`;
+正解: ${original}
+子供の回答: ${userTyped}`;
 };
 

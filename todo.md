@@ -21,7 +21,7 @@ Duolingoとは対照的な「深掘り型」英会話学習。
 - [x] 音声認識モジュール (Web Speech API) (src/components/PracticeRoom.tsx)
 - [x] 学習メイン画面 UI (src/App.tsx, src/components/PracticeRoom.tsx)
 - [x] 判定 & 反復ロジック (10回連続カウント)
-- [ ] 復習のリマインドロジック (Firestoreへの保存が必要)
+- [x] 復習のリマインドロジック (Firestoreへの保存完了)
 
 ### 4. ブラッシュアップ
 - [x] プレミアムなモダンデザインの適用 (Vanilla CSS)
@@ -29,6 +29,7 @@ Duolingoとは対照的な「深掘り型」英会話学習。
 
 ---
 ## 📝 更新履歴
+- 2026-03-23: 学習進捗（正解数・レベル）のFirestore記録機能を実装。累計正解数に応じた自動レベルアップ（Gradeアップ）に対応。ローディングUIをセンター表示のスピナーに変更。
 - 2026-03-23: 子供向け「3段階学習（Read/Write/Speak）」とタブUIを実装。デザインを子供向けに最適化し、Geminiのフィードバックを「褒め上手な先生」に調整。
 - 2026-03-22: APIモデルを `gemini-3-flash-preview` に変更。Markdown形式のレスポンスによるJSONパースエラーを修正。Firebase Hostingの設定（firebase.json, .firebaserc）を追加し、デプロイ完了。
 - 2026-03-19: プロジェクトの初期構築完了。Vite + React + Firebase + Gemini APIの統合に成功。リポジトリのPush Protection問題を解消し、GitHub(main)へクリーンなプッシュが完了。

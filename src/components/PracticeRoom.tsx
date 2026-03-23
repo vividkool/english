@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { getGeminiResponse, generateLessonPrompt, generateScoringPrompt } from "../api/gemini";
+import { db } from "../firebase";
+import { doc, getDoc, setDoc, updateDoc, increment } from "firebase/firestore";
 
 interface LessonItem {
   english: string;
@@ -18,6 +20,8 @@ export const PracticeRoom = () => {
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [activeTab, setActiveTab] = useState<"read" | "write" | "speak">("read");
   const [consecutiveCount, setConsecutiveCount] = useState(0);
+  const [totalCorrect, setTotalCorrect] = useState(0);
+  const [userGrade, setUserGrade] = useState("US Grade 1");
   const [feedback, setFeedback] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [userSpeech, setUserSpeech] = useState("");
@@ -26,14 +30,79 @@ export const PracticeRoom = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentType, setCurrentType] = useState<"vocabulary" | "idioms" | "phrases">("vocabulary");
 
+  // 初回ロード：進捗データの読み込みと教材生成
   useEffect(() => {
-    fetchNewLesson();
+    const initialize = async () => {
+      const savedProgress = await fetchProgress();
+      let grade = "US Grade 1";
+      if (savedProgress) {
+        setTotalCorrect(savedProgress.totalCorrect || 0);
+        grade = calculateGrade(savedProgress.totalCorrect || 0);
+        setUserGrade(grade);
+      }
+      fetchNewLesson(grade);
+    };
+    initialize();
   }, []);
 
-  const fetchNewLesson = async () => {
+  const fetchProgress = async () => {
+    try {
+      const docRef = doc(db, "user_progress", "current_user");
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        return docSnap.data();
+      }
+      return null;
+    } catch (e) {
+      console.error("Error fetching progress:", e);
+      return null;
+    }
+  };
+
+  const calculateGrade = (total: number) => {
+    if (total > 200) return "US Grade 4";
+    if (total > 100) return "US Grade 3";
+    if (total > 50) return "US Grade 2";
+    return "US Grade 1";
+  };
+
+  const saveProgress = async (isCorrect: boolean) => {
+    try {
+      const docRef = doc(db, "user_progress", "current_user");
+      const docSnap = await getDoc(docRef);
+      
+      const updateData = isCorrect 
+        ? { totalCorrect: increment(1), lastUpdate: new Date().toISOString() }
+        : { lastUpdate: new Date().toISOString() };
+
+      if (!docSnap.exists()) {
+        await setDoc(docRef, { totalCorrect: isCorrect ? 1 : 0, grade: "US Grade 1", lastUpdate: new Date().toISOString() });
+      } else {
+        await updateDoc(docRef, updateData);
+      }
+
+      if (isCorrect) {
+        const newTotal = totalCorrect + 1;
+        setTotalCorrect(newTotal);
+        const newGrade = calculateGrade(newTotal);
+        if (newGrade !== userGrade) {
+          setUserGrade(newGrade);
+          setFeedback(`🎖 レベルアップ！ ${newGrade} になったよ！`);
+        }
+      }
+    } catch (e) {
+      console.error("Error saving progress:", e);
+    }
+  };
+
+  const fetchNewLesson = async (gradeOverride?: string) => {
     setIsLoading(true);
     try {
-      const prompt = generateLessonPrompt("US Grade 1", "学校での挨拶");
+      const grade = gradeOverride || userGrade;
+      const themeList = ["学校での挨拶", "おやつが欲しい時", "公園で遊ぶ", "好きな動物", "家族の紹介"];
+      const randomTheme = themeList[Math.floor(Math.random() * themeList.length)];
+      
+      const prompt = generateLessonPrompt(grade, randomTheme);
       const response = await getGeminiResponse(prompt);
       const parsedLesson = JSON.parse(response);
       setLesson(parsedLesson);
@@ -88,12 +157,14 @@ export const PracticeRoom = () => {
         const newCount = consecutiveCount + 1;
         setConsecutiveCount(newCount);
         setFeedback(`✨ ${score.feedback}`);
+        await saveProgress(true);
         if (newCount >= 10) {
           setFeedback("🌈 すっごい！10回連続正解だよ！マスターしたね！");
         }
       } else {
         setConsecutiveCount(0);
         setFeedback(`💡 ${score.feedback}`);
+        await saveProgress(false);
       }
     } catch (error) {
       setFeedback("先生がちょっとお休み中みたい。もう一度送ってみてね。");
@@ -200,9 +271,19 @@ export const PracticeRoom = () => {
 
   return (
     <div className="practice-room card">
-      {isLoading && <div className="loader">Gemini先生が準備中... 💫</div>}
+      {isLoading && (
+        <div className="loader-overlay">
+          <div className="spinner"></div>
+          <div className="loader-text">Gemini先生が準備中... 💫</div>
+        </div>
+      )}
       
       <div className="scroll-content">
+        <div className="progress-header">
+          <span>現在のレベル: <strong>{userGrade}</strong></span>
+          <span>累計正解数: <strong>{totalCorrect}</strong></span>
+        </div>
+
         {activeTab === "read" && renderRead()}
         {activeTab === "write" && renderWrite()}
         {activeTab === "speak" && renderSpeak()}
@@ -213,7 +294,7 @@ export const PracticeRoom = () => {
           <button className="secondary-button" onClick={nextItem}>つぎの問題へ</button>
         )}
 
-        <button className="text-button" onClick={fetchNewLesson} disabled={isLoading}>
+        <button className="text-button" onClick={() => fetchNewLesson()} disabled={isLoading}>
           あたらしいテーマにする
         </button>
       </div>

@@ -165,19 +165,21 @@ input[type="text"]:focus {
 .pass-box { background: #e7f9ee; color: #2e7d32; }
 .hint-box { background: #fff3e0; color: #ef6c00; }
 
-/* Fixed Nav */
-.fixed-bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+/* Progress Header */
+.progress-header {
   display: flex;
-  justify-content: space-around;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
-  z-index: 100;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  background: #fff;
+  border-radius: 15px;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+  color: #666;
+}
+
+.progress-header strong {
+  color: #ff9a9e;
 }
 
 .fixed-bottom-nav button {
@@ -195,10 +197,38 @@ input[type="text"]:focus {
   color: #ff9a9e;
 }
 
-.loader {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 0.7rem;
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
   color: #ff9a9e;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #fecfef;
+  border-top: 5px solid #ff9a9e;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loader-text {
+  font-weight: 600;
+  font-size: 1.1rem;
 }
