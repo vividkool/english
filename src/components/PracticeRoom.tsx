@@ -196,6 +196,12 @@ export const PracticeRoom = () => {
     recognition.start();
   };
 
+  const speakText = (text: string) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "en-US";
+    window.speechSynthesis.speak(utterance);
+  };
+
   const renderRead = () => (
     <div className="read-view">
       <h3>📚 {lesson?.theme}</h3>
@@ -203,6 +209,7 @@ export const PracticeRoom = () => {
         <h4>🌟 たんご (Words)</h4>
         {lesson?.vocabulary.map((v, i) => (
           <div key={i} className="lesson-item">
+            <button className="speak-icon-button" onClick={() => speakText(v.english)}>🔊</button>
             <strong>{v.english}</strong>: {v.japanese}
             <p className="sentence">{v.sentence}</p>
           </div>
@@ -212,6 +219,7 @@ export const PracticeRoom = () => {
         <h4>💫 じゅくご (Idioms)</h4>
         {lesson?.idioms.map((v, i) => (
           <div key={i} className="lesson-item">
+            <button className="speak-icon-button" onClick={() => speakText(v.english)}>🔊</button>
             <strong>{v.english}</strong>: {v.japanese}
             <p className="sentence">{v.sentence}</p>
           </div>
@@ -228,7 +236,10 @@ export const PracticeRoom = () => {
         <h3>✍️ かいてみよう</h3>
         {item && (
           <div className="quiz-container">
-            <p className="japanese-hint">{item.japanese} を英語でいうと？</p>
+            <div className="q-header">
+              <button className="speak-icon-button" onClick={() => speakText(item.english)}>🔊</button>
+              <p className="japanese-hint">{item.japanese} を英語でいうと？</p>
+            </div>
             <input 
               type="text" 
               value={userInput}
@@ -253,7 +264,10 @@ export const PracticeRoom = () => {
         <h3>🎤 はなしてみよう</h3>
         {item && (
           <div className="quiz-container">
-            <p className="english-target">{item.english}</p>
+            <div className="q-header">
+              <button className="speak-icon-button" onClick={() => speakText(item.english)}>🔊</button>
+              <p className="english-target">{item.english}</p>
+            </div>
             <p className="japanese-sub">({item.japanese})</p>
             <button 
               className={`mic-button ${isRecording ? 'recording' : ''}`}
