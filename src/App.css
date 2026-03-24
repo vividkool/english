@@ -36,6 +36,13 @@ header p {
   margin-top: 1rem;
 }
 
+@media (max-width: 500px) {
+  .card {
+    border-radius: 20px;
+    padding: 1rem;
+  }
+}
+
 /* Tabs & Content */
 .scroll-content {
   margin-bottom: 1rem;
@@ -180,6 +187,30 @@ input[type="text"]:focus {
 
 .progress-header strong {
   color: #ff9a9e;
+}
+
+.fixed-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  background: white;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+  z-index: 1000;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.cracker-icon {
+  display: block;
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  animation: bounce 0.5s ease infinite alternate;
+}
+
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-10px); }
 }
 
 .fixed-bottom-nav button {

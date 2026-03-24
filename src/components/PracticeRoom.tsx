@@ -26,6 +26,7 @@ export const PracticeRoom = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [userSpeech, setUserSpeech] = useState("");
   const [userInput, setUserInput] = useState("");
+  const [isPerfect, setIsPerfect] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentType, setCurrentType] = useState<"vocabulary" | "idioms" | "phrases">("vocabulary");
@@ -44,6 +45,10 @@ export const PracticeRoom = () => {
     };
     initialize();
   }, []);
+
+  useEffect(() => {
+    setIsPerfect(false);
+  }, [currentIndex, currentType, activeTab]);
 
   const fetchProgress = async () => {
     try {
@@ -152,11 +157,13 @@ export const PracticeRoom = () => {
       const prompt = generateScoringPrompt(currentItem.english, answer);
       const response = await getGeminiResponse(prompt);
       const score = JSON.parse(response);
+      setIsPerfect(!!score.is_perfect);
 
       if (score.result === "Pass") {
         const newCount = consecutiveCount + 1;
         setConsecutiveCount(newCount);
-        setFeedback(`✨ ${score.feedback}`);
+        const emoji = score.is_perfect ? "🎉" : "✨";
+        setFeedback(`${emoji} ${score.feedback}`);
         await saveProgress(true);
         if (newCount >= 10) {
           setFeedback("🌈 すっごい！10回連続正解だよ！マスターしたね！");
@@ -284,7 +291,8 @@ export const PracticeRoom = () => {
   };
 
   return (
-    <div className="practice-room card">
+    <div className="practice-room">
+      <div className="card card-container">
       {isLoading && (
         <div className="loader-overlay">
           <div className="spinner"></div>
@@ -302,7 +310,12 @@ export const PracticeRoom = () => {
         {activeTab === "write" && renderWrite()}
         {activeTab === "speak" && renderSpeak()}
         
-        {feedback && <div className={`feedback-area ${consecutiveCount === 0 ? 'hint-box' : 'pass-box'}`}>{feedback}</div>}
+        {feedback && (
+          <div className={`feedback-area ${consecutiveCount === 0 ? 'hint-box' : 'pass-box'}`}>
+            {isPerfect && <span className="cracker-icon">🎉</span>}
+            {feedback}
+          </div>
+        )}
         
         {(activeTab === "write" || activeTab === "speak") && (
           <button className="secondary-button" onClick={nextItem}>つぎの問題へ</button>
@@ -313,10 +326,15 @@ export const PracticeRoom = () => {
         </button>
       </div>
 
+      </div>
       <div className="fixed-bottom-nav">
         <button className={activeTab === 'read' ? 'active' : ''} onClick={() => {setActiveTab('read'); setFeedback("");}}>📖 Read</button>
         <button className={activeTab === 'write' ? 'active' : ''} onClick={() => {setActiveTab('write'); setFeedback("");}}>✍️ Write</button>
         <button className={activeTab === 'speak' ? 'active' : ''} onClick={() => {setActiveTab('speak'); setFeedback("");}}>🎤 Speak</button>
+        <button onClick={() => {
+          const item = getCurrentItem();
+          if (item) speakText(item.english);
+        }}>🔊 Listen</button>
       </div>
     </div>
   );
