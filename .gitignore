@@ -1,0 +1,11 @@
+node_modules
+dist
+.env
+.env*.local
+*.json
+!package.json
+!tsconfig.json
+!tsconfig.node.json
+!package-lock.json
+.vscode
+service_account.json
