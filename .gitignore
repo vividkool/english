@@ -1,11 +1,21 @@
 node_modules
 dist
-.env
-.env*.local
-*.json
+.vscode
+
+# Config files
 !package.json
 !tsconfig.json
 !tsconfig.node.json
 !package-lock.json
-.vscode
-service_account.json
+!firebase.json
+!.firebaserc
+
+# Secrets (DO NOT PUSH)
+serviceAccountKey.json
+firebase-admin-key.json
+credentials.json
+.env
+.env.local
+.env.*.local
+
+node_modules

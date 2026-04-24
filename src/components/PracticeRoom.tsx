@@ -73,7 +73,6 @@ export const PracticeRoom = () => {
       }
       return null;
     } catch (e) {
-      console.error("Error fetching progress:", e);
       return null;
     }
   };
@@ -114,7 +113,7 @@ export const PracticeRoom = () => {
         }
       }
     } catch (e) {
-      console.error("Error saving progress:", e);
+      // Error saving progress
     }
   };
 
@@ -143,7 +142,7 @@ export const PracticeRoom = () => {
       setCurrentIndex(0);
       setCurrentType("vocabulary");
     } catch (error) {
-      console.error("Failed to fetch lesson:", error);
+      // Failed to fetch lesson
     } finally {
       setIsLoading(false);
     }
@@ -189,7 +188,7 @@ export const PracticeRoom = () => {
       setListenQuestion(parsed);
       speakText(parsed.question);
     } catch (error) {
-      console.error("Failed to fetch listen question:", error);
+      // Failed to fetch listen question
     } finally {
       setIsLoading(false);
     }
@@ -485,11 +484,17 @@ export const PracticeRoom = () => {
           {activeTab === "listen" && renderListen()}
 
           {feedback && (
-            <div
-              className={`feedback-area ${consecutiveCount === 0 ? "hint-box" : "pass-box"}`}
-            >
-              {isPerfect && <span className="cracker-icon">🎉</span>}
-              {feedback}
+            <div className="modal-overlay">
+              <div className="result-modal">
+                {isPerfect && <span className="cracker-icon">🎉</span>}
+                <div className="modal-feedback">{feedback}</div>
+                <button
+                  className="modal-ok-button"
+                  onClick={() => setFeedback("")}
+                >
+                  OK
+                </button>
+              </div>
             </div>
           )}
 

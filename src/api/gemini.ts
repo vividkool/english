@@ -25,10 +25,10 @@ export const getGeminiResponse = async (prompt: string) => {
     
     return text;
   } catch (error) {
-    console.error("Gemini API Error:", error);
     throw error;
   }
 };
+
 
 /**
  * 教材用プロンプト生成
