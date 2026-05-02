@@ -3,9 +3,6 @@ name: AI Implementation & Deploy (Issue Tracker)
 on:
   issues:
     types: [opened, edited]
-  push:
-    branches:
-      - develop
 
 permissions:
   contents: write

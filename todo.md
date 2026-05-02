@@ -7,12 +7,6 @@ Duolingoとは対照的な「深掘り型」英会話学習。
 
 ## 🛠 現在のタスク状況
 
-### 1. セキュリティと安定性 (最優先)
-
-
-- [ ] 認証情報の漏洩防止対策の徹底 (ハードコード排除の継続確認)
-- [ ] バックエンド用APIキーの安全な配置設計 (GitHub Secrets / Runtime Config)
-- [ ] GitHub Issues を起点とした開発ワークフローの完全定着
 
 ### 2. 機能追加・改善
 
@@ -24,6 +18,7 @@ Duolingoとは対照的な「深掘り型」英会話学習。
 
 ## 📝 更新履歴
 
+- 2026-05-02: STANDARD_WORKFLOW V2 を適用。GitHub Actionsのpushトリガーを廃止し、Issue起点の実装フローに移行。`changed.md` を `checked.md` へ統合しアーカイブ。
 - 2026-04-24: GitHub Actionsでのデプロイエラーを修正（.gitignoreの調整）。UIの余白を削減しコンパクト化。Gemini判定結果のモーダル表示機能を実装。
 - 2026-04-21: リポジトリの認証情報漏洩対策として履歴をパージし、再構築。`src/firebase.ts` を環境変数化。過去の完了済みタスクを `changed.md` へ移動。
 
