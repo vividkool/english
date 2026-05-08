@@ -5,8 +5,8 @@ function App() {
   return (
     <div className="app-container">
       <header>
-        <h1>Step-by-Step Mastery</h1>
-        <p>アメリカの子供が学ぶように、1つずつ完璧に。</p>
+        <h1>English Teacher</h1>
+        <p>Let's Speak English</p>
       </header>
       <main>
         <PracticeRoom />
