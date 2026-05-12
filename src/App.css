@@ -3,11 +3,17 @@
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  padding: 5px;
-  padding-bottom: 70px; /* ナビ用余白 */
+  padding: 10px 10px 70px 10px; /* PC用デフォルト */
   background: radial-gradient(circle at top right, #fdfcfb, #e2d1c3);
   color: #333;
   font-family: "Outfit", "Inter", sans-serif;
+}
+
+@media (max-width: 500px) {
+  .app-container {
+    padding: 0;
+    padding-bottom: 70px;
+  }
 }
 
 header h1 {
@@ -27,6 +33,15 @@ header p {
   margin-bottom: 0.4rem;
 }
 
+@media (max-width: 500px) {
+  header {
+    padding: 1rem 0.8rem 0.5rem 0.8rem;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+  }
+}
+
 .card {
   width: 100%;
   max-width: 500px;
@@ -40,8 +55,13 @@ header p {
 
 @media (max-width: 500px) {
   .card {
-    border-radius: 15px;
-    padding: 0.6rem;
+    border-radius: 0; /* モバイルでは角丸をなくしてフルスクリーン風に */
+    padding: 1rem 0.8rem;
+    margin-top: 0;
+    box-shadow: none;
+    border-left: none;
+    border-right: none;
+    min-height: calc(100vh - 120px); /* ヘッダー分を除いて高さを確保 */
   }
 }
 
@@ -127,18 +147,18 @@ input[type="text"]:focus {
 }
 
 .mic-button {
-  padding: 1rem;
+  padding: 1.2rem;
   border-radius: 50%;
-  width: 100px;
-  height: 100px;
-  margin: 0 auto;
+  width: 140px; /* 100px -> 140px */
+  height: 140px; /* 100px -> 140px */
+  margin: 1.5rem auto;
   background: #f8f9fa;
-  font-size: 0.8rem;
+  font-size: 1.1rem; /* 0.8rem -> 1.1rem */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
 }
 
 .mic-button.recording {
@@ -237,16 +257,17 @@ input[type="text"]:focus {
 .fixed-bottom-nav button {
   background: none;
   flex: 1;
-  padding: 0.8rem;
+  padding: 1rem;
   color: #ccc;
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 1rem;
+  font-size: 1.1rem; /* 1rem -> 1.1rem */
 }
 
 .fixed-bottom-nav button.active {
   color: #ff9a9e;
+  font-weight: 800;
 }
 
 @media (max-width: 768px) {
@@ -255,8 +276,8 @@ input[type="text"]:focus {
   }
 
   .fixed-bottom-nav button {
-    padding: 0.6rem;
-    font-size: 0.7rem;
+    padding: 0.7rem;
+    font-size: 0.9rem; /* 0.7rem -> 0.9rem */
   }
 }
 
@@ -266,8 +287,8 @@ input[type="text"]:focus {
   }
 
   .fixed-bottom-nav button {
-    padding: 0.5rem;
-    font-size: 0.65rem;
+    padding: 0.6rem;
+    font-size: 0.85rem; /* 0.65rem -> 0.85rem */
   }
 }
 
